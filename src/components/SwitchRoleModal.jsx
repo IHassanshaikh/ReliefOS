@@ -132,12 +132,6 @@ export default function SwitchRoleModal() {
           </button>
         </div>
 
-        {/* Required Hackathon Banner */}
-        <div className="bg-amber-50 dark:bg-amber-950/40 border-b border-amber-200 dark:border-amber-900/60 px-3.5 py-2 text-center">
-          <p className="text-[11px] font-bold text-amber-900 dark:text-amber-200">
-            Just login for your testing judging you don&apos;t need to signup
-          </p>
-        </div>
 
         {/* 3 Role Selection Pills (Using SVGs, no emojis, changes theme color dynamically on every click) */}
         <div className="p-3 border-b border-slate-100 dark:border-slate-800">

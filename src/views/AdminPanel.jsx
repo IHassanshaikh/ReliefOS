@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { fetchAdminStats, addSafeZoneAction, queryGeminiAI } from '../lib/api';
+import { fetchAdminStats, addSafeZoneAction } from '../lib/api';
 import { 
   ShieldAlert, 
   MapPin, 
@@ -19,10 +19,7 @@ import {
   Activity, 
   Database, 
   ArrowUpRight, 
-  Sparkles, 
-  RefreshCw,
-  Bot,
-  Zap 
+  RefreshCw
 } from 'lucide-react';
 import {
   BarChart,
@@ -52,29 +49,6 @@ export default function AdminPanel() {
   });
   const [formSubmitting, setFormSubmitting] = useState(false);
 
-  // Gemini 2.5 Flash Strategic Policy State
-  const [aiPolicyRecommendation, setAiPolicyRecommendation] = useState(
-    'Gemini AI Strategic Operations Directive: Operations report 1 unverified Dark Zone in Delta Sector with 1 critical water deficit at Camp B (-160L). Executive Directive: Re-task 2 standby volunteers to amphibious reconnaissance, authorize emergency 500L water convoy from District Reserve, and lower mesh verification threshold from 70 to 55 for next 6 hours.'
-  );
-  const [isAiPolicyLoading, setIsAiPolicyLoading] = useState(false);
-
-  const handleRunPolicyRecommendation = async () => {
-    setIsAiPolicyLoading(true);
-    try {
-      const res = await queryGeminiAI({
-        task: 'dark_zone_analysis',
-        prompt: `Executive situation review for Admin Command: Total Sectors: ${stats?.totalAreas}, Active Dark Zones: ${stats?.activeDarkZones}, Critical Deficits: ${stats?.criticalShortages}. Formulate a 3-point strategic executive policy directive for provincial disaster leadership.`,
-        context: { stats }
-      });
-      if (res?.response) {
-        setAiPolicyRecommendation(res.response);
-      }
-    } catch (err) {
-      console.warn('AI policy error:', err);
-    } finally {
-      setIsAiPolicyLoading(false);
-    }
-  };
 
   const loadStats = async () => {
     setLoading(true);
@@ -205,43 +179,6 @@ export default function AdminPanel() {
         </div>
       </div>
 
-      {/* GEMINI 2.5 FLASH STRATEGIC OPERATIONS DIRECTIVE */}
-      <div className="rounded-xl border border-[#2D4A22]/30 bg-gradient-to-r from-[#1C3315]/10 via-[#2D4A22]/15 to-[#3E6630]/10 p-4 shadow-sm backdrop-blur-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#2D4A22]/20">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-[#1C3315] via-[#2D4A22] to-[#3E6630] text-white">
-              <Sparkles className="w-4 h-4 text-emerald-300 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xs sm:text-sm font-bold font-mono text-slate-900 dark:text-white uppercase tracking-wider">
-                  GEMINI 2.5 FLASH // STRATEGIC OPERATIONS DIRECTIVE
-                </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold">
-                  gemini-2.5-flash
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-sans mt-0.5">
-                Provincial disaster policy synthesis • Cross-sector resource balancing • Executive dispatch protocol
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleRunPolicyRecommendation}
-            disabled={isAiPolicyLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#1C3315] via-[#2D4A22] to-[#3E6630] hover:opacity-95 shadow-xs disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isAiPolicyLoading ? 'animate-spin' : ''}`} />
-            <span>{isAiPolicyLoading ? 'Generating Directive...' : 'Generate Strategic Directive'}</span>
-          </button>
-        </div>
-        <div className="mt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur rounded-lg p-3 border border-[#2D4A22]/20 flex items-start gap-2.5">
-          <Bot className="w-4 h-4 text-[#2D4A22] dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans font-medium whitespace-pre-line">
-            {aiPolicyRecommendation}
-          </div>
-        </div>
-      </div>
 
       {/* 8 Stat Cards Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

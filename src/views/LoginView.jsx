@@ -167,12 +167,6 @@ export default function LoginView({ targetRestrictedRoute = null, onDismiss = nu
           </p>
         </div>
 
-        {/* Required Hackathon Banner */}
-        <div className="rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/40 p-2.5 text-center shadow-xs">
-          <p className="text-xs font-bold text-amber-900 dark:text-amber-200">
-            Just login for your testing judging you don&apos;t need to signup
-          </p>
-        </div>
 
         {/* Restricted Route Notice if intercepted */}
         {targetRestrictedRoute && (

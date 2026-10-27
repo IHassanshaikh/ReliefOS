@@ -16,14 +16,10 @@ import {
   Unlock, 
   AlertTriangle, 
   Send, 
-  Sparkles, 
   CheckCircle2, 
   Terminal,
-  Bot,
-  Zap,
   RefreshCw
 } from 'lucide-react';
-import { queryGeminiAI } from '../lib/api';
 
 export default function MeshSimulator() {
   const [inputText, setInputText] = useState('Elderly person trapped in flooded ground floor, need boat urgently');
@@ -33,30 +29,6 @@ export default function MeshSimulator() {
   const [gatewayDecrypted, setGatewayDecrypted] = useState(null);
   const [encryptedPacket, setEncryptedPacket] = useState(null);
   const [logs, setLogs] = useState([]);
-
-  // Dynamic AI Mesh Diagnostics State
-  const [aiMeshDiagnostics, setAiMeshDiagnostics] = useState(
-    'AI Mesh Diagnostics: Current 3-hop topology (Origin -> Relay Alpha -> Relay Beta -> HQ Gateway) exhibits 99.4% packet delivery reliability with 142ms simulated latency. End-to-end ECDH P-256 forward secrecy verified. Recommend placing mobile repeater at intermediate Sector 2 waypoint to preserve relay battery life.'
-  );
-  const [isAiDiagnosing, setIsAiDiagnosing] = useState(false);
-
-  const handleRunMeshDiagnostics = async () => {
-    setIsAiDiagnosing(true);
-    try {
-      const res = await queryGeminiAI({
-        task: 'dark_zone_analysis',
-        prompt: `Diagnose this 4-node disaster mesh network: Originator, 2 Encrypted Intermediate Relays, and Gateway. Current payload: "${inputText}". Provide an engineering diagnostic on packet survivability, hop latency bottlenecks, and optimal repeater deployment.`,
-        context: { nodesCount: 4, hopCount: 3 }
-      });
-      if (res?.response) {
-        setAiMeshDiagnostics(res.response);
-      }
-    } catch (err) {
-      console.warn('Mesh diagnostics error:', err);
-    } finally {
-      setIsAiDiagnosing(false);
-    }
-  };
 
   // Node keys
   const [nodes, setNodes] = useState([]);
@@ -154,43 +126,6 @@ export default function MeshSimulator() {
         <span className="text-amber-300/80 text-[10px]">RANGE: ~10M INDOORS</span>
       </div>
 
-      {/* GEMINI 2.5 FLASH MESH TOPOLOGY DIAGNOSTICS */}
-      <div className="rounded-xl border border-[#2D4A22]/30 bg-gradient-to-r from-[#1C3315]/10 via-[#2D4A22]/15 to-[#3E6630]/10 p-4 shadow-sm backdrop-blur-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#2D4A22]/20">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-[#1C3315] via-[#2D4A22] to-[#3E6630] text-white">
-              <Sparkles className="w-4 h-4 text-emerald-300 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xs sm:text-sm font-bold font-mono text-slate-900 dark:text-white uppercase tracking-wider">
-                  AI MESH TOPOLOGY &amp; LATENCY DIAGNOSTICS
-                </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold">
-                  reliefos-ai
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-sans mt-0.5">
-                Hop degradation analysis • Cryptographic overhead telemetry • Dynamic relay placement
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleRunMeshDiagnostics}
-            disabled={isAiDiagnosing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#1C3315] via-[#2D4A22] to-[#3E6630] hover:opacity-95 shadow-xs disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isAiDiagnosing ? 'animate-spin' : ''}`} />
-            <span>{isAiDiagnosing ? 'Analyzing Mesh...' : 'Re-Diagnose Topology'}</span>
-          </button>
-        </div>
-        <div className="mt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur rounded-lg p-3 border border-[#2D4A22]/20 flex items-start gap-2.5">
-          <Bot className="w-4 h-4 text-[#2D4A22] dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans font-medium whitespace-pre-line">
-            {aiMeshDiagnostics}
-          </div>
-        </div>
-      </div>
 
       {/* Header & Controls */}
       <div className="bg-white dark:bg-slate-900 rounded-lg p-3.5 sm:p-4 border border-slate-200 dark:border-slate-800 shadow-xs">

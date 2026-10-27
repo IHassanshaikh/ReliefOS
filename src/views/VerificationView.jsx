@@ -8,8 +8,7 @@ import {
   fetchVolunteers, 
   fetchDuties, 
   sendFieldTeamAction, 
-  verifyAreaAction,
-  queryGeminiAI 
+  verifyAreaAction
 } from '../lib/api';
 import { 
   ShieldAlert, 
@@ -21,10 +20,7 @@ import {
   ArrowRight, 
   Send, 
   Eye, 
-  FileCheck,
-  Sparkles,
-  Bot,
-  Zap
+  FileCheck
 } from 'lucide-react';
 
 export default function VerificationView() {
@@ -43,32 +39,6 @@ export default function VerificationView() {
   const [rejectArea, setRejectArea] = useState(null);
   const [rejectNote, setRejectNote] = useState('Ground inspection verified area is stable; no structural or flood entrapment.');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Dynamic AI Dark Zone Evidence State
-  const [aiEvidenceEvaluation, setAiEvidenceEvaluation] = useState(
-    'AI Evidence Synthesis: Delta Sector 9 (Area C) has 98% silence over 4.5 hours with high baseline density (4,500 pop). Bayesian distress probability: 94.2%. Field Recommendation: Confirm dark zone status and dispatch amphibious reconnaissance team (vol-1, vol-4) immediately.'
-  );
-  const [isAiEvaluating, setIsAiEvaluating] = useState(false);
-
-  const handleRunAiEvaluation = async () => {
-    setIsAiEvaluating(true);
-    showToast('Running AI dark zone evaluator...');
-    try {
-      const res = await queryGeminiAI({
-        task: 'dark_zone_analysis',
-        prompt: `Synthesize dark zone evidence for pending sectors (${areas.filter(a => a.assessment?.isDarkZone || a.id === 'area-c').length} sectors flagged). Evaluate cellular blackout probability, victim entrapment risk, and recommend whether commanders should Confirm or Clear each zone. Keep under 35 words.`,
-        context: { areasCount: areas.length, volunteersCount: volunteers.length }
-      });
-      if (res?.response) {
-        setAiEvidenceEvaluation(res.response);
-        showToast('AI dark zone evaluation updated!', 'success');
-      }
-    } catch (err) {
-      console.warn('AI evaluation error:', err);
-    } finally {
-      setIsAiEvaluating(false);
-    }
-  };
 
   const loadData = async () => {
     setLoading(true);
@@ -190,43 +160,6 @@ export default function VerificationView() {
         </button>
       </div>
 
-      {/* AI DARK ZONE EVIDENCE EVALUATOR */}
-      <div className="rounded-xl border border-[#2D4A22]/30 bg-gradient-to-r from-[#1C3315]/10 via-[#2D4A22]/15 to-[#3E6630]/10 p-4 shadow-sm backdrop-blur-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#2D4A22]/20">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-[#1C3315] via-[#2D4A22] to-[#3E6630] text-white">
-              <Sparkles className="w-4 h-4 text-emerald-300 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xs sm:text-sm font-bold font-mono text-slate-900 dark:text-white uppercase tracking-wider">
-                  AI DARK ZONE EVIDENCE EVALUATOR
-                </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold">
-                  reliefos-ai
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-sans mt-0.5">
-                Bayesian silence probability synthesis • Drone telemetry correlation • Human verification advisory
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleRunAiEvaluation}
-            disabled={isAiEvaluating}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#1C3315] via-[#2D4A22] to-[#3E6630] hover:opacity-95 shadow-xs disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isAiEvaluating ? 'animate-spin' : ''}`} />
-            <span>{isAiEvaluating ? 'Evaluating Evidence...' : 'Re-Evaluate Silence Evidence'}</span>
-          </button>
-        </div>
-        <div className="mt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur rounded-lg p-3 border border-[#2D4A22]/20 flex items-start gap-2.5">
-          <Bot className="w-4 h-4 text-[#2D4A22] dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans font-medium whitespace-pre-line">
-            {aiEvidenceEvaluation}
-          </div>
-        </div>
-      </div>
 
       {/* Mandatory Safety Notice */}
       <div className="px-3.5 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 text-[11px] font-mono text-amber-900 dark:text-amber-200 flex items-center justify-between gap-3">

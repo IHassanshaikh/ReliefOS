@@ -65,8 +65,7 @@ import {
   submitReportAction, 
   sendMessageAction, 
   fetchMessages, 
-  queryGeminiAI,
-  fetchSafeZones,
+  fetchSafeZones, 
   fetchCamps
 } from '../lib/api';
 
@@ -321,11 +320,6 @@ export default function AffectedUserMobileApp() {
     }
   ]);
 
-  // Gemini 2.5 Flash Predictive Intelligence State
-  const [aiForecast, setAiForecast] = useState(
-    'Gemini AI Logistics Assessment: Water reserves (64%) will hit critical 15% threshold in 14.5 hours under 1,240 resident intake. Priority dispatch: 1,500L tanker from Depo North by 07:30.'
-  );
-  const [isGeneratingForecast, setIsGeneratingForecast] = useState(false);
 
   // Persistent Message thread state
   const [messages, setMessages] = useState([
@@ -451,24 +445,6 @@ export default function AffectedUserMobileApp() {
       clearInterval(poller);
     };
   }, []);
-
-  // Gemini AI Forecast Generator
-  const handleGenerateAiForecast = async () => {
-    setIsGeneratingForecast(true);
-    showToast('Querying Gemini 2.5 Flash logistics model...');
-    const res = await queryGeminiAI({
-      prompt: 'Analyze Camp 3 status: 1240 residents, Water 320/500L, Food 480/800kg, Medical 12/50 kits. Predict depletion times and give 2 concrete logistics recommendations.',
-      task: 'camp_forecast',
-      context: { camp: 'Camp 3', valley: 'Khanpur Valley', residents: 1240 }
-    });
-    if (res?.response) {
-      setAiForecast(res.response);
-      showToast('Gemini AI Forecast updated!');
-      addMeshLog('Gemini 2.5 Flash generated updated logistics forecast.');
-    }
-    setIsGeneratingForecast(false);
-  };
-
   // Emergency SOS & Custom Distress Dispatch with 100% DB and Portal Connectivity
   const handleQuickSOS = async (title, emergencyText, urgencyLevel = 'critical') => {
     setIsSending(true);
@@ -503,32 +479,6 @@ export default function AffectedUserMobileApp() {
 
     // Mesh log telemetry entry
     addMeshLog(`TX EMERGENCY PACKET [${title}]: Cipher ${cipherHash.slice(0, 16)} via ${isMesh ? 'BLE P2P Mesh' : 'Cellular / Wi-Fi'}`);
-
-    // Query Gemini 2.5 Flash for immediate survival and first-aid instructions
-    queryGeminiAI({
-      prompt: `Emergency distress reported: ${title}. Resident notes: "${emergencyText}". Provide 2 immediate survival or first-aid actions for the resident while rescue teams navigate the mesh.`,
-      task: 'citizen_advisor',
-      context: { camp: 'Camp 3 (Khanpur Valley)', residents: 1240 }
-    }).then(aiRes => {
-      if (aiRes?.response) {
-        setMessages(prev => [
-          ...prev,
-          {
-            id: `ai-advice-${Date.now()}`,
-            sender: 'gemini_ai',
-            volunteerName: 'Gemini 2.5 Flash Emergency Advisor',
-            text: aiRes.response,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            isAiAdvisor: true,
-            model: aiRes.model || 'gemini-2.5-flash'
-          }
-        ]);
-        addMeshLog('RX AI ADVICE: Gemini 2.5 Flash returned survival protocol.');
-      }
-    }).catch(err => {
-      console.warn('Gemini advisor error:', err);
-    });
-
     // 1. TRANSMIT TO RELIEFOS BACKEND DATABASE: /api/v1/messages
     // This immediately routes to the Volunteer Portal (/volunteer) and triggers audio/visual popups
     try {
@@ -962,40 +912,6 @@ export default function AffectedUserMobileApp() {
                 </div>
               </div>
 
-              {/* GEMINI 2.5 FLASH PREDICTIVE INTELLIGENCE CARD */}
-              <div className="bg-gradient-to-br from-[#FAFBF8] to-[#F4F7EF] rounded-2xl border border-[#3E6630]/30 p-3.5 shadow-xs space-y-2">
-                <div className="flex items-center justify-between pb-1.5 border-b border-[#E4E7D7]">
-                  <div className="flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-[#2D4A22]" />
-                    <span className="text-xs font-black text-[#1A251B]">Gemini 2.5 Flash Disaster Copilot</span>
-                  </div>
-                  <span className="text-[9.5px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full border border-emerald-300">
-                    Live AI
-                  </span>
-                </div>
-
-                <div className="text-[11.5px] text-[#1A251B] leading-relaxed">
-                  {aiForecast}
-                </div>
-
-                <div className="flex items-center gap-2 pt-1">
-                  <button
-                    onClick={handleGenerateAiForecast}
-                    disabled={isGeneratingForecast}
-                    className="flex-1 py-1.5 px-2.5 rounded-xl bg-gradient-to-r from-[#203918] via-[#2D4A22] to-[#385F2C] text-white text-[10.5px] font-bold hover:brightness-110 shadow-xs flex items-center justify-center gap-1.5 transition-all"
-                  >
-                    <RefreshCw className={`w-3 h-3 ${isGeneratingForecast ? 'animate-spin' : ''}`} />
-                    <span>{isGeneratingForecast ? 'Querying Gemini...' : 'Refresh AI Forecast'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => setActiveTab('requests')}
-                    className="py-1.5 px-3 rounded-xl bg-[#E8EFE5] border border-[#3D6130]/40 text-[#2D4A22] text-[10.5px] font-bold hover:bg-[#DCE6D7] transition-colors"
-                  >
-                    Ask AI Advisor
-                  </button>
-                </div>
-              </div>
 
               {/* Camp Status Overview Progress Section */}
               <div className="bg-white rounded-2xl border border-[#E4E7D7] p-3.5 shadow-xs space-y-3">
@@ -1267,23 +1183,6 @@ export default function AffectedUserMobileApp() {
                 <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                   {messages.map((m) => {
                     const isUser = m.sender === 'user' || m.sender === 'citizen';
-                    const isAi = m.isAiAdvisor;
-
-                    if (isAi) {
-                      return (
-                        <div 
-                          key={m.id}
-                          className="p-2.5 rounded-xl border border-emerald-500/40 bg-gradient-to-br from-[#F4F9F2] to-[#FAFDF9] text-xs leading-relaxed mr-4 shadow-xs"
-                        >
-                          <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-800 mb-1">
-                            <Sparkles className="w-3.5 h-3.5 text-[#2D4A22]" />
-                            <span>Gemini 2.5 Flash Emergency Guidance</span>
-                            <span className="text-[9px] text-[#576356] ml-auto font-mono">{m.timestamp}</span>
-                          </div>
-                          <div className="text-[#1A251B] font-medium whitespace-pre-line leading-relaxed">{m.text}</div>
-                        </div>
-                      );
-                    }
 
                     return (
                       <div 
@@ -1543,16 +1442,6 @@ export default function AffectedUserMobileApp() {
                 ))}
               </div>
 
-              {/* GEMINI AI TACTICAL RECON & SHELTER MATCHMAKER */}
-              <div className="bg-white rounded-2xl border border-[#3E6630]/30 p-3 shadow-xs space-y-1.5">
-                <div className="flex items-center gap-1.5 text-xs font-black text-[#1A251B]">
-                  <Sparkles className="w-3.5 h-3.5 text-[#2D4A22]" />
-                  <span>Gemini AI Tactical Recon Assessment</span>
-                </div>
-                <div className="text-[10.5px] text-[#576356] leading-relaxed">
-                  Delta 9 silence ratio is 0.68. Predicted isolated pockets: 3 clusters along river bend. Recommended evacuation path: 45° Northeast toward Camp 1 (Central Stadium) with 410 open slots and medical triage ready.
-                </div>
-              </div>
             </div>
           )}
 
@@ -1645,7 +1534,7 @@ export default function AffectedUserMobileApp() {
                           <span className="text-[9px] font-mono px-1 rounded bg-red-200 text-red-800 font-bold">ADMIN</span>
                         </div>
                         <div className="text-[10px] text-slate-500 truncate">
-                          Dark Zone disparity map, AI briefing & resource dispatch
+                          Dark Zone disparity map, tactical overview & resource dispatch
                         </div>
                       </div>
                     </div>

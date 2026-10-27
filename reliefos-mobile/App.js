@@ -48,9 +48,6 @@ export default function App() {
   const [mobileToMobileEnabled, setMobileToMobileEnabled] = useState(true); // Option: Travel Mobile-to-Mobile
   const [selectedVolunteer, setSelectedVolunteer] = useState(MOCK_VOLUNTEERS[0]);
   const [selectedCamp, setSelectedCamp] = useState(MOCK_CAMPS[0]);
-  const [geminiForecast, setGeminiForecast] = useState(
-    'Gemini AI Logistics Assessment: Water reserves (64%) will hit critical 15% threshold in 14.5 hours under 1,240 resident intake. Priority dispatch: 1,500L tanker from Depo North by 07:30.'
-  );
   const [messages, setMessages] = useState([
     {
       id: 'msg-seed-1',
@@ -215,39 +212,6 @@ export default function App() {
               </View>
             </View>
 
-            {/* GEMINI 2.5 FLASH DISASTER COPILOT CARD */}
-            <View style={[styles.sectionCard, { backgroundColor: '#F0F4EC', borderColor: '#2D4A22', borderWidth: 1 }]}>
-              <View style={styles.sectionHeader}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Sparkles color="#2D4A22" size={16} strokeWidth={2.5} />
-                  <Text style={[styles.sectionTitle, { marginLeft: 6, color: '#1A251B' }]}>
-                    Gemini 2.5 Flash Disaster Copilot
-                  </Text>
-                </View>
-                <View style={{ backgroundColor: '#2D4A22', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 }}>
-                  <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '700' }}>gemini-2.5-flash</Text>
-                </View>
-              </View>
-              <Text style={{ fontSize: 12, color: '#2D382B', lineHeight: 18, marginTop: 4 }}>
-                {geminiForecast}
-              </Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, justifyContent: 'space-between' }}>
-                <Text style={{ fontSize: 10, color: '#5C6A5A', fontWeight: '600' }}>
-                  Live Predictive Telemetry Active
-                </Text>
-                <TouchableOpacity
-                  onPress={() => {
-                    Alert.alert(
-                      'Gemini AI First-Aid Advisor',
-                      '1. Keep devices in low-energy mode.\n2. Store water in covered containers on high shelves.\n3. Prepare high-visibility cloth for drone recon.\n\nPowered by Gemini 2.5 Flash Emergency Copilot'
-                    );
-                  }}
-                  style={{ backgroundColor: '#2D4A22', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 6 }}
-                >
-                  <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700' }}>Ask AI Advisor</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
 
             {/* Camp Status Overview (● Live Updates) */}
             <View style={styles.sectionCard}>

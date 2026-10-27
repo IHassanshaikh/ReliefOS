@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchCamps, queryGeminiAI } from '../lib/api';
+import { fetchCamps } from '../lib/api';
 import { 
   Boxes, 
   Droplet, 
@@ -13,9 +13,6 @@ import {
   ArrowRight, 
   CheckCircle2, 
   Truck,
-  Sparkles,
-  Bot,
-  Zap,
   RefreshCw 
 } from 'lucide-react';
 
@@ -23,30 +20,6 @@ export default function Resources() {
   const router = useRouter();
   const [camps, setCamps] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // Dynamic AI Inventory State
-  const [aiInventoryBrief, setAiInventoryBrief] = useState(
-    'AI Inventory Synthesis: Evaluating multi-hub stock balances. Camp B drinking water reserve is under burn rate threshold. Inter-camp transfers from Camp A surplus hub recommended to ensure uninterrupted supply.'
-  );
-  const [isAiInventoryLoading, setIsAiInventoryLoading] = useState(false);
-
-  const handleRunInventoryAnalysis = async () => {
-    setIsAiInventoryLoading(true);
-    try {
-      const res = await queryGeminiAI({
-        task: 'camp_forecast',
-        prompt: `Analyze multi-camp inventory reserves across ${camps.length} camps: ${JSON.stringify(camps.map(c => ({ name: c.name, items: c.items, occupancy: c.occupancy })))}. Highlight acute deficits and recommend balanced redistribution.`,
-        context: { campsCount: camps.length }
-      });
-      if (res?.response) {
-        setAiInventoryBrief(res.response);
-      }
-    } catch (err) {
-      console.warn('AI inventory error:', err);
-    } finally {
-      setIsAiInventoryLoading(false);
-    }
-  };
 
   useEffect(() => {
     fetchCamps().then(data => {
@@ -99,43 +72,6 @@ export default function Resources() {
         </button>
       </div>
 
-      {/* AI INVENTORY BALANCING FORECASTER */}
-      <div className="rounded-xl border border-[#2D4A22]/30 bg-gradient-to-r from-[#1C3315]/10 via-[#2D4A22]/15 to-[#3E6630]/10 p-4 shadow-sm backdrop-blur-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#2D4A22]/20">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-[#1C3315] via-[#2D4A22] to-[#3E6630] text-white">
-              <Sparkles className="w-4 h-4 text-emerald-300 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xs sm:text-sm font-bold font-mono text-slate-900 dark:text-white uppercase tracking-wider">
-                  AI MULTI-HUB INVENTORY BALANCING
-                </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold">
-                  reliefos-ai
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-sans mt-0.5">
-                Automated stockout timeline • Burn-rate disparity detection • Inter-hub transfer recommendations
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleRunInventoryAnalysis}
-            disabled={isAiInventoryLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#1C3315] via-[#2D4A22] to-[#3E6630] hover:opacity-95 shadow-xs disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isAiInventoryLoading ? 'animate-spin' : ''}`} />
-            <span>{isAiInventoryLoading ? 'Analyzing Reserves...' : 'Re-Analyze Inventory'}</span>
-          </button>
-        </div>
-        <div className="mt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur rounded-lg p-3 border border-[#2D4A22]/20 flex items-start gap-2.5">
-          <Bot className="w-4 h-4 text-[#2D4A22] dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans font-medium whitespace-pre-line">
-            {aiInventoryBrief}
-          </div>
-        </div>
-      </div>
 
       {/* Camp Inventory Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

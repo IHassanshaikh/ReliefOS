@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { extractKeywordsFromText, fetchReports, submitReportAction, queryGeminiAI } from '../lib/api';
+import { extractKeywordsFromText, fetchReports, submitReportAction } from '../lib/api';
 import { useApp } from '../context/AppContext';
 import { 
   FileSearch, 
-  Sparkles, 
   AlertCircle, 
   Send, 
   Clock, 
@@ -15,8 +14,6 @@ import {
   Radio,
   FileText,
   BadgeAlert,
-  Zap,
-  Bot,
   RefreshCw
 } from 'lucide-react';
 
@@ -28,10 +25,6 @@ export default function ReportTriage() {
   const [extractedData, setExtractedData] = useState(null);
   const [reportsList, setReportsList] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [geminiTriageResult, setGeminiTriageResult] = useState(
-    'Urgency: CRITICAL. Category: Rescue / Medical. Estimated Victims: 1 vulnerable elderly citizen (bedridden, flood immersion hazard). Immediate Action: Deploy shallow-draft evacuation boat to Area C ground floor immediately; establish hypothermia staging.'
-  );
-  const [isAnalyzingWithAi, setIsAnalyzingWithAi] = useState(false);
 
   const sampleMessages = [
     {
@@ -52,28 +45,6 @@ export default function ReportTriage() {
     }
   ];
 
-  const handleRunAiTriage = async (customText = null) => {
-    const textToAnalyze = customText || inputText;
-    if (!textToAnalyze.trim()) return;
-    setIsAnalyzingWithAi(true);
-    showToast('Running AI emergency triage model...');
-    try {
-      const res = await queryGeminiAI({
-        task: 'triage',
-        prompt: `Analyze this citizen distress packet and classify life threat: "${textToAnalyze}"`,
-        context: { source: 'triage_desk', sector: 'Area C Delta' }
-      });
-      if (res?.response) {
-        setGeminiTriageResult(res.response);
-        showToast('AI autonomous triage analysis complete!', 'success');
-      }
-    } catch (err) {
-      console.warn('AI triage error:', err);
-      showToast('AI offline, local heuristic triage applied.', 'error');
-    } finally {
-      setIsAnalyzingWithAi(false);
-    }
-  };
 
   // Perform extraction whenever text changes or on demand
   const handleExtract = () => {
@@ -154,15 +125,6 @@ export default function ReportTriage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleRunAiTriage()}
-                  disabled={isAnalyzingWithAi || !inputText.trim()}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-[#1C3315] via-[#2D4A22] to-[#3E6630] hover:opacity-90 text-white shadow-xs transition-opacity disabled:opacity-50"
-                >
-                  <Sparkles className={`w-3.5 h-3.5 text-emerald-300 ${isAnalyzingWithAi ? 'animate-spin' : ''}`} />
-                  <span>{isAnalyzingWithAi ? 'Triage Running...' : 'AI Autonomous Triage'}</span>
-                </button>
-                <button
-                  type="button"
                   onClick={handleCommitReport}
                   disabled={isSubmitting || !inputText.trim()}
                   className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors disabled:opacity-50"
@@ -214,23 +176,6 @@ export default function ReportTriage() {
                 </span>
               </div>
 
-              {/* LIVE AI DEEP TRIAGE RESULT */}
-              {geminiTriageResult && (
-                <div className="mt-4 p-3.5 rounded-xl bg-gradient-to-br from-[#1C3315]/10 via-[#2D4A22]/15 to-transparent border border-[#2D4A22]/30 shadow-xs">
-                  <div className="flex items-center justify-between pb-2 border-b border-[#2D4A22]/20">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-[#2D4A22] dark:text-emerald-400">
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>AI Autonomous Triage</span>
-                    </div>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold">
-                      reliefos-ai
-                    </span>
-                  </div>
-                  <div className="mt-2 text-xs font-medium text-slate-800 dark:text-slate-200 leading-relaxed font-sans whitespace-pre-line">
-                    {geminiTriageResult}
-                  </div>
-                </div>
-              )}
 
               {extractedData ? (
                 <div className="space-y-4 mt-5">

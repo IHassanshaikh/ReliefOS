@@ -7,7 +7,6 @@ import {
   fetchDuties, 
   updateDutyStatusAction, 
   createDutyAction,
-  queryGeminiAI,
   fetchMessages,
   submitRequisitionAction,
   fetchCamps,
@@ -30,10 +29,6 @@ import {
   Calendar, 
   Map, 
   Tent,
-  Sparkles,
-  Bot,
-  Zap,
-  ShieldAlert,
   Radio,
   Package,
   Plus,
@@ -66,12 +61,6 @@ export default function VolunteerDashboard() {
   const [loading, setLoading] = useState(true);
   const isFetchingRef = useRef(false);
 
-  // AI Field Safety State
-  const [aiSafetyAdvice, setAiSafetyAdvice] = useState(
-    'Area C flood surge active (+3.2 ft). Avoid subterranean basements; maintain low-power mesh beacon pinging every 15 min.'
-  );
-  const [isAiSafetyLoading, setIsAiSafetyLoading] = useState(false);
-
   // Volunteer Camp Resource Requisition Modal State
   const [showReqModal, setShowReqModal] = useState(false);
   const [reqCampId, setReqCampId] = useState('camp-3');
@@ -80,26 +69,6 @@ export default function VolunteerDashboard() {
   const [reqPriority, setReqPriority] = useState('critical');
   const [reqNotes, setReqNotes] = useState('Urgent drinking water replenishment required for displaced families in Sector Delta 9.');
   const [isSubmittingReq, setIsSubmittingReq] = useState(false);
-
-  const handleRunSafetyCheck = async () => {
-    setIsAiSafetyLoading(true);
-    showToast('Running AI field safety analysis...');
-    try {
-      const res = await queryGeminiAI({
-        task: 'citizen_advisor',
-        prompt: `Provide ONLY 2 very brief responder safety rules (under 25 words total) for volunteer ${currentVolunteerName} in high flood zone. No filler text.`,
-        context: { volunteerId: currentVolunteerId, dutiesCount: duties.length, messagesCount: citizenMessages.length }
-      });
-      if (res?.response) {
-        setAiSafetyAdvice(res.response);
-        showToast('AI field safety briefing updated!', 'success');
-      }
-    } catch (err) {
-      console.warn('Safety advisor error:', err);
-    } finally {
-      setIsAiSafetyLoading(false);
-    }
-  };
 
   const loadData = useCallback(async () => {
     if (isFetchingRef.current) return;
@@ -373,43 +342,6 @@ export default function VolunteerDashboard() {
         </div>
       </div>
 
-      {/* AI FIELD SAFETY ADVISOR */}
-      <div className="rounded-xl border border-[#2D4A22]/30 bg-gradient-to-r from-[#1C3315]/10 via-[#2D4A22]/15 to-[#3E6630]/10 p-4 shadow-sm backdrop-blur-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#2D4A22]/20">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-[#1C3315] via-[#2D4A22] to-[#3E6630] text-white">
-              <ShieldAlert className="w-4 h-4 text-emerald-300 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xs sm:text-sm font-black font-mono text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-                  AI FIELD RESPONDER SAFETY ADVISOR
-                </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold">
-                  reliefos-ai
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-600 dark:text-slate-400 font-sans mt-0.5">
-                Dynamic route hazard appraisal • Subterranean flood warnings • Offline mesh rendezvous
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleRunSafetyCheck}
-            disabled={isAiSafetyLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#1C3315] via-[#2D4A22] to-[#3E6630] hover:opacity-95 shadow-xs disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isAiSafetyLoading ? 'animate-spin' : ''}`} />
-            <span>{isAiSafetyLoading ? 'Scanning Hazards...' : 'Re-Check Route Hazards'}</span>
-          </button>
-        </div>
-        <div className="mt-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-lg p-3 border border-[#2D4A22]/20 flex items-start gap-2.5">
-          <Bot className="w-4 h-4 text-[#2D4A22] dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-slate-900 dark:text-slate-100 font-medium leading-relaxed font-sans whitespace-pre-line">
-            {aiSafetyAdvice}
-          </div>
-        </div>
-      </div>
 
       {/* REAL-TIME INBOUND CITIZEN DISTRESS SOS FEED */}
       <div className="bg-white dark:bg-slate-900 rounded-lg p-3.5 sm:p-4 border border-red-500/30 dark:border-red-500/40 shadow-xs space-y-3">

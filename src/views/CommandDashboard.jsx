@@ -9,8 +9,7 @@ import {
   fetchCamps, 
   fetchPriorityList, 
   fetchAdminStats,
-  sendFieldTeamAction,
-  queryGeminiAI
+  sendFieldTeamAction
 } from '../lib/api';
 import { 
   AlertTriangle, 
@@ -20,10 +19,7 @@ import {
   ShieldAlert, 
   ChevronRight,
   Radio,
-  Sparkles,
-  RefreshCw,
-  Zap,
-  Bot
+  RefreshCw
 } from 'lucide-react';
 
 // Dynamically import Leaflet CommandMap with ssr: false
@@ -45,35 +41,6 @@ export default function CommandDashboard() {
   const [priorityList, setPriorityList] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // Dynamic AI Disaster Intelligence State
-  const [aiBriefing, setAiBriefing] = useState(
-    'AI Autonomous Situation Assessment: Delta Sector (Area C) shows a 98% reporting blackout indicating cellular tower collapse. Immediate recommendation: dispatch amphibious drone recon along North Canal corridor and pre-stage 500L emergency potable water at Camp B.'
-  );
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [aiLastUpdated, setAiLastUpdated] = useState('Active Synced');
-
-  const handleGenerateAiBriefing = async () => {
-    setIsAiLoading(true);
-    showToast('Generating AI tactical situation briefing...');
-    try {
-      const res = await queryGeminiAI({
-        task: 'dark_zone_analysis',
-        prompt: `Current disaster status: ${areas.length} sectors monitored. Delta Sector (Area C) has 98% reporting silence and high flood severity. Camp B has -160L water deficit with 1,240 residents. Provide an executive tactical situation briefing with 3 actionable priorities for the incident commander.`,
-        context: { areasCount: areas.length, activeDarkZones: stats?.activeDarkZones || 1, criticalShortages: stats?.criticalShortages || 1 }
-      });
-      if (res?.response) {
-        setAiBriefing(res.response);
-        setAiLastUpdated(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-        showToast('Gemini 2.5 Flash briefing updated successfully!', 'success');
-      }
-    } catch (err) {
-      console.warn('AI briefing error:', err);
-      showToast('Could not reach Gemini model, local tactical fallback active.', 'error');
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
 
   const loadData = async () => {
     setLoading(true);
@@ -234,69 +201,6 @@ export default function CommandDashboard() {
         </div>
       </div>
 
-      {/* GEMINI 2.5 FLASH TACTICAL SITUATION BRIEFING */}
-      <div className="rounded-xl border border-[#2D4A22]/30 bg-gradient-to-r from-[#1C3315]/10 via-[#2D4A22]/15 to-[#3E6630]/10 p-4 shadow-sm backdrop-blur-sm relative overflow-hidden">
-        <div className="absolute top-0 right-0 transform translate-x-4 -translate-y-4 w-28 h-28 bg-[#2D4A22]/10 rounded-full blur-2xl pointer-events-none" />
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#2D4A22]/20">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-[#1C3315] via-[#2D4A22] to-[#3E6630] text-white shadow-xs">
-              <Sparkles className="w-4 h-4 text-emerald-300 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xs sm:text-sm font-bold font-mono text-slate-900 dark:text-white uppercase tracking-wider">
-                  AI AUTONOMOUS SITUATION BRIEFING
-                </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#2D4A22]/20 text-[#2D4A22] dark:text-emerald-300 font-bold border border-[#2D4A22]/30">
-                  AI COPILOT ACTIVE
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-sans mt-0.5">
-                Real-time multi-source synthesis • Cellular silence analysis • Automated casualty forecasting
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-mono text-slate-500 hidden sm:inline">
-              Updated: {aiLastUpdated}
-            </span>
-            <button
-              onClick={handleGenerateAiBriefing}
-              disabled={isAiLoading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#1C3315] via-[#2D4A22] to-[#3E6630] hover:opacity-95 transition-opacity shadow-xs border border-emerald-900/30 disabled:opacity-50"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isAiLoading ? 'animate-spin' : ''}`} />
-              <span>{isAiLoading ? 'Synthesizing Intel...' : 'Refresh AI Briefing'}</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="mt-3.5 grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-center">
-          <div className="lg:col-span-9 bg-white/80 dark:bg-slate-900/80 backdrop-blur rounded-lg p-3.5 border border-[#2D4A22]/20 shadow-xs">
-            <div className="flex items-start gap-2.5">
-              <Bot className="w-4 h-4 text-[#2D4A22] dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-              <div className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans font-medium whitespace-pre-line">
-                {aiBriefing}
-              </div>
-            </div>
-          </div>
-          <div className="lg:col-span-3 flex flex-col gap-2">
-            <div className="p-2.5 rounded-lg bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800">
-              <div className="text-[10px] font-mono text-slate-500 uppercase">Model Verification</div>
-              <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono flex items-center gap-1.5 mt-0.5">
-                <Zap className="w-3 h-3 text-amber-500" />
-                gemini-2.5-flash
-              </div>
-            </div>
-            <div className="p-2.5 rounded-lg bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-500">DARK ZONE THREAT</span>
-              <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-800">
-                CRITICAL (DELTA)
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Main Map & Situation Overview */}
       <div className="bg-white dark:bg-slate-900 rounded-lg p-3.5 sm:p-4 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">

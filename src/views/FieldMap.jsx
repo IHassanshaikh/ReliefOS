@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { fetchAreas, fetchCamps, queryGeminiAI } from '../lib/api';
-import { MapPin, Tent, AlertTriangle, Wifi, WifiOff, RefreshCw, Sparkles, Bot, Zap, Compass, Crosshair } from 'lucide-react';
+import { fetchAreas, fetchCamps } from '../lib/api';
+import { MapPin, Tent, AlertTriangle, Wifi, WifiOff, RefreshCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 // Dynamically load Leaflet map (no SSR)
@@ -26,29 +26,6 @@ export default function FieldMap() {
   const [loading, setLoading] = useState(true);
   const [selectedCamp, setSelectedCamp] = useState(null);
 
-  // Dynamic AI Recon State
-  const [aiReconIntel, setAiReconIntel] = useState(
-    'AI Recon Analysis: Delta Sector exhibits complete electromagnetic silence across 4 cell towers. Recommended UAV flight path: 24.8710° N, 67.0180° E along canal levee. Priority search for 40-60 stranded residents on isolated elevated rooftops.'
-  );
-  const [isAiReconLoading, setIsAiReconLoading] = useState(false);
-
-  const handleQueryAiRecon = async () => {
-    setIsAiReconLoading(true);
-    try {
-      const res = await queryGeminiAI({
-        task: 'dark_zone_analysis',
-        prompt: `Analyze the geospatial coordinates of ${areas.length} active sectors. Identify why Area C is experiencing 98% reporting silence and pinpoint the recommended drone reconnaissance coordinates.`,
-        context: { areasCount: areas.length, campsCount: camps.length }
-      });
-      if (res?.response) {
-        setAiReconIntel(res.response);
-      }
-    } catch (err) {
-      console.warn('AI recon error:', err);
-    } finally {
-      setIsAiReconLoading(false);
-    }
-  };
 
   const loadData = async () => {
     setLoading(true);
@@ -127,43 +104,6 @@ export default function FieldMap() {
         </div>
       </div>
 
-      {/* GEMINI 2.5 FLASH RECON INTELLIGENCE PANEL */}
-      <div className="rounded-xl border border-[#2D4A22]/30 bg-gradient-to-r from-[#1C3315]/10 via-[#2D4A22]/15 to-[#3E6630]/10 p-4 shadow-sm backdrop-blur-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#2D4A22]/20">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-[#1C3315] via-[#2D4A22] to-[#3E6630] text-white">
-              <Compass className="w-4 h-4 text-emerald-300 animate-spin-slow" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xs sm:text-sm font-bold font-mono text-slate-900 dark:text-white uppercase tracking-wider">
-                  AI GEOSPATIAL RECON INTELLIGENCE
-                </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold">
-                  reliefos-ai
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-sans mt-0.5">
-                Automated drone flight path calculation • Blackout perimeter mapping
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleQueryAiRecon}
-            disabled={isAiReconLoading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#1C3315] via-[#2D4A22] to-[#3E6630] hover:opacity-95 shadow-xs disabled:opacity-50"
-          >
-            <Crosshair className={`w-3.5 h-3.5 ${isAiReconLoading ? 'animate-spin' : ''}`} />
-            <span>{isAiReconLoading ? 'Calculating Corridor...' : 'Recalculate AI Flight Path'}</span>
-          </button>
-        </div>
-        <div className="mt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur rounded-lg p-3 border border-[#2D4A22]/20 flex items-start gap-2.5">
-          <Bot className="w-4 h-4 text-[#2D4A22] dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans font-medium whitespace-pre-line">
-            {aiReconIntel}
-          </div>
-        </div>
-      </div>
 
       {/* Map */}
       <div className="glass-panel rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">

@@ -7,7 +7,6 @@ import {
   approveAllocationAction, 
   fetchDuties,
   updateDutyStatusAction,
-  queryGeminiAI,
   skipSyncFor
 } from '../lib/api';
 import { 
@@ -18,13 +17,10 @@ import {
   Package, 
   Droplet, 
   AlertCircle, 
-  Sparkles, 
   Send,
   Navigation,
   Check,
   Boxes,
-  Bot,
-  Zap,
   RefreshCw
 } from 'lucide-react';
 
@@ -36,31 +32,6 @@ export default function AllocationDelivery() {
   const [approvingId, setApprovingId] = useState(null);
   const [approvedIds, setApprovedIds] = useState(new Set());
 
-  // Dynamic AI Logistics State
-  const [aiSupplyPlan, setAiSupplyPlan] = useState(
-    'AI Supply Chain Optimization: Analyzing inter-camp supply imbalances and flood-safe routes. Directing excess potable water from surplus hubs to deficit coastal shelters via bypass Highway 4. Estimated transit time: 24 minutes.'
-  );
-  const [isAiOptimizing, setIsAiOptimizing] = useState(false);
-
-  const handleRunAiSupplyPlan = async () => {
-    setIsAiOptimizing(true);
-    showToast('Calculating optimal supply chain corridors...');
-    try {
-      const res = await queryGeminiAI({
-        task: 'camp_forecast',
-        prompt: `Evaluate ${suggestions.length} inter-camp transfer suggestions. Recommend the fastest convoy route, delivery window, and emergency safety instructions for drivers avoiding waterlogged roads. Keep under 35 words.`,
-        context: { suggestionsCount: suggestions.length, dutiesCount: duties.length }
-      });
-      if (res?.response) {
-        setAiSupplyPlan(res.response);
-        showToast('AI supply chain routing updated!', 'success');
-      }
-    } catch (err) {
-      console.warn('AI supply error:', err);
-    } finally {
-      setIsAiOptimizing(false);
-    }
-  };
 
   const loadData = async () => {
     setLoading(true);
@@ -148,43 +119,6 @@ export default function AllocationDelivery() {
         </div>
       </div>
 
-      {/* AI SUPPLY CHAIN ROUTE OPTIMIZER */}
-      <div className="rounded-xl border border-[#2D4A22]/30 bg-gradient-to-r from-[#1C3315]/10 via-[#2D4A22]/15 to-[#3E6630]/10 p-4 shadow-sm backdrop-blur-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#2D4A22]/20">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-[#1C3315] via-[#2D4A22] to-[#3E6630] text-white">
-              <Sparkles className="w-4 h-4 text-emerald-300 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xs sm:text-sm font-bold font-mono text-slate-900 dark:text-white uppercase tracking-wider">
-                  AI AUTONOMOUS SUPPLY ROUTE OPTIMIZER
-                </h2>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold">
-                  reliefos-ai
-                </span>
-              </div>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-sans mt-0.5">
-                Surplus-to-deficit load balancing • Hazard corridor avoidance • Delivery window forecasting
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleRunAiSupplyPlan}
-            disabled={isAiOptimizing}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-[#1C3315] via-[#2D4A22] to-[#3E6630] hover:opacity-95 shadow-xs disabled:opacity-50"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isAiOptimizing ? 'animate-spin' : ''}`} />
-            <span>{isAiOptimizing ? 'Optimizing Routes...' : 'Re-Optimize Supply Routes'}</span>
-          </button>
-        </div>
-        <div className="mt-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur rounded-lg p-3 border border-[#2D4A22]/20 flex items-start gap-2.5">
-          <Bot className="w-4 h-4 text-[#2D4A22] dark:text-emerald-400 flex-shrink-0 mt-0.5" />
-          <div className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-sans font-medium whitespace-pre-line">
-            {aiSupplyPlan}
-          </div>
-        </div>
-      </div>
 
       {/* Suggested Transfers Queue */}
       <div className="bg-white dark:bg-slate-900 rounded-lg p-3.5 sm:p-4 border border-slate-200 dark:border-slate-800 shadow-xs space-y-3">
